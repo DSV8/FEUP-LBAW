@@ -1,0 +1,54 @@
+.postcard {
+    width: 80%; /* Adjust the width as needed */
+    padding: 20px; /* Add padding for content spacing */
+    background-color: #15100C; /* Set the background color */
+    margin: 20px auto;
+    border: 1px solid white; /* Add a border */
+    border-radius: 20px;
+}
+
+.postcard:hover{
+    cursor:pointer;
+}
+
+.anonymous_username{
+    color: #F0B27C;
+    text-decoration:none;
+}
+
+.anonymous_username:hover, .anonymous_username:focus{
+    color: #FB7A09;
+    text-decoration:underline;
+}
+
+i {
+    color: #F0B27C;
+    font-size: 20px; /* Increase the font size as desired */
+}
+
+.clicked {
+    color: #F0B27C;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.not-clicked {
+    color: #F0B27C;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.commentcard {
+    width: 80%; /* Adjust the width as needed */
+    padding: 20px; /* Add padding for content spacing */
+    background-color: #15100C; /* Set the background color */
+    margin: 20px auto;
+    border: 1px solid white; /* Add a border */
+    border-radius: 20px;
+}

@@ -1,0 +1,663 @@
+openapi: 3.0.0
+
+
+info:
+ version: '1.0'
+ title: 'SWC News API'
+ description: 'Web Resources Specification (A7) for SWC News'
+
+servers:
+- url: http://lbaw2374.lbaw.fe.up.pt/
+  description: Production server
+  
+tags:
+ - name: 'M01: Authentication and Individual Profile'
+ - name: 'M02: Posts and Comments'
+ - name: 'M03: Users'
+ - name: 'M04: Feed and Search'
+ - name: 'M05: Notifications'
+
+paths:
+  /login:
+    get:
+      operationId: R101
+      summary: 'R101: Login Form'
+      description: 'Provide login form. Access: PUB'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      responses:
+        '200':
+          description: 'Ok. show Log-in UI'
+    post:
+      operationId: R102
+      summary: 'R102: Login Action'
+      description: 'Processes the login form submission. Access: PUB'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '302':
+          description: 'Redirect after login credentials are processed.'
+  /logout:
+    post:
+      operationId: R103
+      summary: 'R103: Logout Action'
+      description: 'Logout the current authenticated user. Access: USR'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      responses:
+        '302':
+          description: 'Redirect after processing logout.'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                302Success:
+                  description: 'Successful logout. Redirect to login form.'
+                  value: '/login'
+  /profile/{id}:
+    get:
+      operationId: R104
+      summary: 'R104: View user profile'
+      description: 'Show the individual user profile. Access: USR'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+
+      responses:
+        '200':
+          description: 'Ok. Show User Profile UI'
+
+  /register:  # Adding registration endpoint
+    get:
+     operationId: R104
+     summary: 'R104: Register Form'
+     description: 'Provide new user registration form. Access: PUB'
+     tags:
+       - 'M01: Authentication and Individual Profile'
+     responses:
+       '200':
+         description: 'Ok. Show Sign-Up UI'
+    post:
+      operationId: R105
+      summary: 'R105: Register Form'
+      description: 'Provide new user registration form.'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      responses:
+       '302':
+         description: 'Redirect after processing the new user information.'
+         headers:
+           Location:
+             schema:
+               type: string
+             examples:
+               302Success:
+                 description: 'Successful authentication. Redirect to main.'
+                 value: '/main'
+               302Failure:
+                 description: 'Failed authentication. Redirect to register form.'
+                 value: '/register'
+
+  /profile/{id}/change_password:  # Adding password change endpoint
+    post:
+      operationId: R106
+      summary: 'R106: Change Password'
+      description: 'Processes the request for password change. Access: USR'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+      responses:
+        '200':
+          description: 'Password change initiated. Redirect to user profile.'
+          headers:
+            Location:
+              schema:
+                type: string
+              examples:
+                200Success:
+                  description: 'Password change initiated. Redirect to user profile.'
+                  value: '/profile/{id}'
+
+  /profile/{id}/:  # Adding profile settings endpoint
+    get:
+      operationId: R107
+      summary: 'R107: View Profile Settings'
+      description: 'Show the profile settings of the user. Access: USR'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Ok. Show User Profile Settings UI'
+
+    put:
+      operationId: R108
+      summary: 'R108: Update Profile Settings'
+      description: 'Update the profile settings of the user. Access: USR'
+      tags:
+        - 'M01: Authentication and Individual Profile'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                setting:
+                  type: string  # Modify with the actual setting property
+              required:
+                - setting
+      responses:
+        '200':
+          description: 'Profile settings updated successfully.'
+  /create_post:
+    post:
+      operationId: R201
+      summary: 'R201: Create a new post. Access: USR'
+      description: 'Create a new post'
+      tags:
+        - 'M02: Posts and Comments'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                content:
+                  type: string
+              required:
+                - title
+                - content
+      responses:
+        '201':
+          description: 'New post created successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  postId:
+                    type: integer
+                  message: 
+                    type: string
+                    example: 'Post created successfully'
+  /posts/{postId}:
+    get:
+      operationId: R202
+      summary: 'R202: View a post'
+      description: 'View details of a specific post. Access: USR'
+      tags:
+        - 'M02: Posts and Comments'
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Success. Details of the post retrieved.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  postId:
+                    type: integer
+                  title:
+                    type: string
+                  content:
+                    type: string
+                  comments:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        commentId:
+                          type: integer
+                        content:
+                          type: string
+                        userId:
+                          type: integer
+                        votes:
+                          type: integer
+                        createdAt:
+                          type: string
+                        updatedAt:
+                          type: string
+    delete:
+      operationId: R203
+      summary: 'R203: Delete own post'
+      description: "Delete one's own post. Access: ATR"
+      tags:
+        - 'M02: Posts and Comments'
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: integer
+          required: true
+      responses:
+        '204':
+          description: 'Post deleted successfully'
+  /posts/{postId}/comments:
+    post:
+      operationId: R204
+      summary: 'R204: Create comment on a post'
+      description: 'Create a comment on a specific post. Access: USR'
+      tags:
+        - 'M02: Posts and Comments'
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                content:
+                  type: string
+              required:
+                - content
+      responses:
+        '201':
+          description: 'Comment created successfully'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commentId:
+                    type: integer
+                  message: 
+                    type: string
+                    example: 'Comment created successfully'
+  /posts/{postId}/comments/{commentId}:
+    delete:
+      operationId: R205
+      summary: 'R205: Delete a comment'
+      description: 'Delete a comment on a post. Access: USR'
+      tags:
+        - 'M02: Posts and Comments'
+      parameters:
+        - in: path
+          name: postId
+          schema:
+            type: integer
+          required: true
+        - in: path
+          name: commentId
+          schema:
+            type: integer
+          required: true
+      responses:
+        '204':
+          description: 'Comment deleted successfully'         
+  /profile/{id}:
+    get:
+      operationId: R301
+      summary: 'R301: View user information'
+      description: 'Retrieve details of a specific user. Access: USR'
+      tags:
+        - 'M03: Users'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Success. Details of the user retrieved.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                  username:
+                    type: string
+                  email:
+                    type: string
+  /user_news:
+    get:
+      operationId: R302
+      summary: 'R302: View user posts'
+      description: 'Retrieve posts created by a specific user. Access: ATR'
+      tags:
+        - 'M03: Users'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: 'Success. Posts by the user retrieved.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    postId:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+  /profile/{id}/follow:
+    post:
+      operationId: R303
+      summary: 'R303: Follow a user'
+      description: 'Follow another user. Access: USR'
+      tags:
+        - 'M03: Users'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '201':
+          description: 'Success. User followed.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: 
+                    type: string
+                    example: 'User followed successfully'
+  /main:
+    get:
+      operationId: R401
+      summary: 'R401: Get main feed'
+      description: 'Retrieve the main feed. Access: PUB'
+      tags:
+        - 'M04: Feed and Search'
+      parameters:
+        - in: query
+          name: topic
+          schema:
+            type: string
+          description: 'Filter posts by topic'
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: 'Sort posts by upvotes, downvotes, recency, or post date'
+      responses:
+        '200':
+          description: 'Success. Main feed retrieved.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    postId:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    upvotes:
+                      type: integer
+                    downvotes:
+                      type: integer
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+  /search/users:
+    get:
+      operationId: R402
+      summary: 'R402: Search users by username'
+      description: 'Search for users by username. Access: PUB'
+      tags:
+        - 'M04: Feed and Search'
+      parameters:
+        - in: query
+          name: username
+          schema:
+            type: string
+          description: 'Username to search for'
+      responses:
+        '200':
+          description: 'Success. Users matching the search retrieved.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: integer
+                    username:
+                      type: string
+  /search/posts:
+    get:
+      operationId: R403
+      summary: 'R403: Search posts by title or content'
+      description: 'Search for posts by title or content. Access: PUB'
+      tags:
+        - 'M04: Feed and Search'
+      parameters:
+        - in: query
+          name: searchTerm
+          schema:
+            type: string
+          description: 'Term to search in post title or content'
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: ['upvotes', 'downvotes', 'recency', 'postDate']
+          description: 'Sort posts by upvotes, downvotes, recency, or post date'
+      responses:
+        '200':
+          description: 'Success. Posts matching the search retrieved.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    postId:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    upvotes:
+                      type: integer
+                    downvotes:
+                      type: integer
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+  /search/posts/user/{id}:
+    get:
+      operationId: R404
+      summary: 'R404: Search posts by user'
+      description: 'Search for posts by a specific user. Access: PUB'
+      tags:
+        - 'M04: Feed and Search'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+          description: 'ID of the user'
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: ['upvotes', 'downvotes', 'recency', 'postDate']
+          description: 'Sort posts by upvotes, downvotes, recency, or post date'
+      responses:
+        '200':
+          description: 'Success. Posts by the user retrieved.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    postId:
+                      type: integer
+                    title:
+                      type: string
+                    content:
+                      type: string
+                    upvotes:
+                      type: integer
+                    downvotes:
+                      type: integer
+                    createdAt:
+                      type: string
+                    updatedAt: # Add data type specification here, assuming it's string
+                      type: string
+  /notifications:
+    get:
+      operationId: R501
+      summary: 'R501: Get notifications'
+      description: 'Retrieve notifications for the current user. Access: USR'
+      tags:
+        - 'M05: Notifications'
+      responses:
+        '200':
+          description: 'Success. Notifications retrieved.'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    notificationId:
+                      type: integer
+                    message:
+                      type: string
+                    createdAt:
+                      type: string
+                    read:
+                      type: boolean
+
+  /notifications/pop-up:
+    post:
+      operationId: R502
+      summary: 'R502: Create notification pop-up'
+      description: 'Create a notification pop-up for the user. Access: USR' 
+      tags:
+        - 'M05: Notifications'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                userId:
+                  type: integer
+              required:
+                - message
+                - userId
+      responses:
+        '201':
+          description: 'Notification pop-up created successfully.'
+
+  /notifications/actions:
+    post:
+      operationId: R503
+      summary: 'R503: Create notification based on specific actions'
+      description: 'Create notifications based on specific actions. Access: USR'
+      tags:
+        - 'M05: Notifications'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: ['newComment', 'upvotesThreshold', 'downvotesThreshold', 'newReply', 'newPostByFollowedUser']
+                userId:
+                  type: integer
+                postId:
+                  type: integer
+                commentId:
+                  type: integer
+                replyId:
+                  type: integer
+              required:
+                - action
+                - userId
+      responses:
+        '201':
+          description: 'Notification created based on action.'
